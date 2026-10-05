@@ -113,14 +113,11 @@ fi
 
 echo "Creating zip and disk image"
 ditto -c -k --keepParent "$APP" "$ZIP"
-stage="$(mktemp -d)"
 cleanup() {
-  rm -rf "$stage" "${key_file:-}" "${archives:-}"
+  rm -rf "${key_file:-}" "${archives:-}"
 }
 trap cleanup EXIT
-ditto "$APP" "$stage/URE.app"
-hdiutil create -volname "URE" -srcfolder "$stage" -ov -format UDZO "$DMG" >/dev/null
-hdiutil verify "$DMG" >/dev/null
+"$ROOT/Scripts/make_dmg.sh" "$APP" "$DMG"
 
 if [[ ! -x "$TOOLS/bin/generate_appcast" ]]; then
   echo "Downloading Sparkle ${SPARKLE_VERSION} tools"

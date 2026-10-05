@@ -57,6 +57,8 @@ export URE_DOWNLOAD_URL_PREFIX="https://github.com/OWNER/URE/releases/download/v
 
 결과물은 `dist/URE-v0.1.0.zip`, `dist/URE-v0.1.0.dmg`, `dist/appcast.xml`입니다. `OWNER/URE`는 실제 GitHub 저장소로 바꿉니다. `origin` remote가 있으면 두 URL 환경 변수는 생략할 수 있습니다.
 
+DMG를 열면 URE와 응용 프로그램 폴더가 나란히 있습니다. 앱을 그 폴더로 끌어다 놓으면 설치됩니다.
+
 단위 테스트:
 
 ```bash
