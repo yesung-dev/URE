@@ -10,6 +10,7 @@ struct UREApp: App {
             ContentView(model: model)
         }
         .defaultSize(width: 860, height: 700)
+        .windowToolbarStyle(.unified(showsTitle: true))
         .commands {
             AppUpdaterCommands(appUpdater: appUpdater)
             CommandGroup(replacing: .newItem) {}

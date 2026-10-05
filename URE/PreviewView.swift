@@ -16,7 +16,7 @@ struct PreviewView: View {
         VStack(spacing: 0) {
             summary
                 .padding(.horizontal, 28)
-                .padding(.top, 20)
+                .padding(.top, 8)
                 .padding(.bottom, 12)
 
             Table(visibleItems) {
@@ -44,8 +44,8 @@ struct PreviewView: View {
                         .truncationMode(.middle)
                 }
             }
-
-            Divider()
+        }
+        .safeAreaBar(edge: .bottom) {
             footer
         }
     }
@@ -53,7 +53,7 @@ struct PreviewView: View {
     private var summary: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(summaryTitle)
-                .font(.title3.weight(.semibold))
+                .font(.title2.weight(.semibold))
             Text("변경 예정 \(pendingItems.count.grouped) · 전체 \(model.items.count.grouped)")
                 .font(.callout)
                 .foregroundStyle(.secondary)
@@ -95,6 +95,7 @@ struct PreviewView: View {
             Button("취소") {
                 model.cancel()
             }
+            .buttonStyle(.glass)
             .keyboardShortcut(.cancelAction)
 
             Spacer()
@@ -109,17 +110,18 @@ struct PreviewView: View {
                 Button("닫기") {
                     model.returnToReady()
                 }
+                .buttonStyle(.glassProminent)
                 .keyboardShortcut(.defaultAction)
             } else {
                 Button("정규화 실행") {
                     model.renameSelected()
                 }
+                .buttonStyle(.glassProminent)
                 .keyboardShortcut(.defaultAction)
-                .buttonStyle(.borderedProminent)
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 14)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
     }
 }
 

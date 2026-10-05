@@ -7,7 +7,7 @@ struct ResultView: View {
         VStack(spacing: 0) {
             summary
                 .padding(.horizontal, 28)
-                .padding(.top, 20)
+                .padding(.top, 8)
                 .padding(.bottom, 12)
 
             Table(model.results) {
@@ -41,8 +41,8 @@ struct ResultView: View {
                 }
                 .width(min: 180, ideal: 280)
             }
-
-            Divider()
+        }
+        .safeAreaBar(edge: .bottom) {
             footer
         }
     }
@@ -58,12 +58,14 @@ struct ResultView: View {
                     .foregroundStyle(.secondary)
             }
 
-            HStack(spacing: 12) {
-                StatBadge(title: "변경됨", value: model.renamedCount)
-                StatBadge(title: "변경할 필요 없음", value: model.unchangedCount)
-                StatBadge(title: "실패", value: model.failedCount, emphasizesFailure: model.failedCount > 0)
-                if model.skippedCount > 0 {
-                    StatBadge(title: "제외", value: model.skippedCount)
+            GlassEffectContainer(spacing: 12) {
+                HStack(spacing: 12) {
+                    StatBadge(title: "변경됨", value: model.renamedCount)
+                    StatBadge(title: "변경할 필요 없음", value: model.unchangedCount)
+                    StatBadge(title: "실패", value: model.failedCount, emphasizesFailure: model.failedCount > 0)
+                    if model.skippedCount > 0 {
+                        StatBadge(title: "제외", value: model.skippedCount)
+                    }
                 }
             }
 
@@ -82,16 +84,18 @@ struct ResultView: View {
             Button("처음으로") {
                 model.returnToReady()
             }
+            .buttonStyle(.glass)
 
             Spacer()
 
             Button("실행 취소") {
                 model.undoLastRun()
             }
+            .buttonStyle(.glass)
             .disabled(!model.canUndo)
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 14)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
     }
 
     private func color(for status: RenameStatus) -> Color {
@@ -120,11 +124,11 @@ private struct StatBadge: View {
                 .font(.title2.monospacedDigit().weight(.semibold))
                 .foregroundStyle(emphasizesFailure ? Color.red : Color.primary)
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(Color(nsColor: .controlBackgroundColor))
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .glassEffect(
+            emphasizesFailure ? .regular.tint(.red) : .regular,
+            in: RoundedRectangle(cornerRadius: 16, style: .continuous)
         )
     }
 }

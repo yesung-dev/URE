@@ -1,83 +1,102 @@
 #!/bin/bash
-# Build a disk image that opens with URE.app beside an Applications folder.
+# Build a drag-to-Applications disk image with create-dmg.
+#
+# Icon positions and the arrow use one coordinate system: the Finder icon view,
+# origin at the top left. The background image is exactly that view, at 72 dpi.
+# The title bar is not part of the image. On this macOS it is 32 points tall
+# when the toolbar and status bar are hidden.
 
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+CREATE_DMG_VERSION="1.3.0"
+
+window_width=560
+window_height=300
+title_bar=32
+icon_size=128
+app_x=160
+drop_x=400
+icon_y=123
+view_width="$window_width"
+view_height="$((window_height - title_bar))"
+arrow_x="$(( (app_x + drop_x) / 2 ))"
+arrow_y="$icon_y"
+
 app="${1:?usage: make_dmg.sh URE.app output.dmg}"
 dmg="${2:?usage: make_dmg.sh URE.app output.dmg}"
-mounted_volume=""
-scratch=""
+stage=""
 
 cleanup() {
-  if [[ -n "$mounted_volume" && -d "$mounted_volume" ]]; then
-    hdiutil detach "$mounted_volume" >/dev/null 2>&1 || hdiutil detach -force "$mounted_volume" >/dev/null 2>&1 || true
-  fi
-  rm -rf "$scratch"
+  rm -rf "$stage"
 }
 trap cleanup EXIT
 
-background="$ROOT/Config/dmg-background.png"
-if [[ ! -f "$background" ]]; then
-  swift "$ROOT/Scripts/make_dmg_background.swift" "$background"
+tool_dir="$ROOT/.build/create-dmg-${CREATE_DMG_VERSION}"
+tool="$tool_dir/create-dmg"
+template="$tool_dir/support/template.applescript"
+if [[ ! -x "$tool" || ! -f "$template" ]]; then
+  echo "Downloading create-dmg ${CREATE_DMG_VERSION}"
+  mkdir -p "$ROOT/.build"
+  archive="$(mktemp)"
+  curl -fsSL -o "$archive" "https://github.com/create-dmg/create-dmg/archive/refs/tags/v${CREATE_DMG_VERSION}.tar.gz"
+  rm -rf "$tool_dir"
+  tar -xzf "$archive" -C "$ROOT/.build"
+  rm -f "$archive"
+  chmod +x "$tool"
 fi
 
-kb="$(du -sk "$app" | awk '{print $1}')"
-size_mb="$(( kb / 1024 + 32 ))"
-scratch="$(mktemp -d)"
-rw="$scratch/URE-rw.dmg"
+# The last item create-dmg positions stays selected. Clear that before Finder saves .DS_Store.
+python3 - "$template" << 'PY'
+import pathlib, sys
+path = pathlib.Path(sys.argv[1])
+text = path.read_text()
+needle = "\t\t--give the finder some time to write the .DS_Store file\n"
+if "set selection to {}" not in text:
+    if needle not in text:
+        raise SystemExit("create-dmg template changed; cannot clear the icon selection")
+    path.write_text(text.replace(needle, "\t\tset selection to {}\n" + needle, 1))
+PY
 
-hdiutil create -size "${size_mb}m" -fs APFS -volname "URE" -ov "$rw" >/dev/null
-attach="$(hdiutil attach -readwrite -noverify -noautoopen "$rw")"
-mounted_volume="$(printf '%s\n' "$attach" | sed -n 's/.*\(\/Volumes\/.*\)$/\1/p' | tail -1)"
-if [[ -z "$mounted_volume" || ! -d "$mounted_volume" ]]; then
-  echo "Could not mount the disk image." >&2
-  printf '%s\n' "$attach" >&2
+background="$ROOT/Config/dmg-background.png"
+swift "$ROOT/Scripts/make_dmg_background.swift" "$background" "$view_width" "$view_height" "$arrow_x" "$arrow_y"
+
+stage="$(mktemp -d)"
+ditto "$app" "$stage/URE.app"
+osascript -e "tell application \"Finder\" to make new alias file at (POSIX file \"${stage}\") to (POSIX file \"/Applications\")" >/dev/null
+drop_name=""
+for entry in "$stage"/*; do
+  base="$(basename "$entry")"
+  if [[ "$base" != "URE.app" ]]; then
+    drop_name="$base"
+  fi
+done
+if [[ -z "$drop_name" ]]; then
+  echo "Could not create the Applications alias." >&2
   exit 1
 fi
-disk_name="$(basename "$mounted_volume")"
 
-ditto "$app" "$mounted_volume/URE.app"
-ln -s /Applications "$mounted_volume/Applications"
-mkdir -p "$mounted_volume/.background"
-cp "$background" "$mounted_volume/.background/background.png"
-if [[ -f "$mounted_volume/URE.app/Contents/Resources/URE_icon.icns" ]]; then
-  cp "$mounted_volume/URE.app/Contents/Resources/URE_icon.icns" "$mounted_volume/.VolumeIcon.icns"
-  setfile="$(xcrun --find SetFile 2>/dev/null || true)"
-  if [[ -n "$setfile" ]]; then
-    "$setfile" -a C "$mounted_volume"
-  fi
+args=(
+  --volname "URE"
+  --background "$background"
+  --window-pos 200 120
+  --window-size "$window_width" "$window_height"
+  --icon-size "$icon_size"
+  --text-size 13
+  --icon "URE.app" "$app_x" "$icon_y"
+  --hide-extension "URE.app"
+  --icon "$drop_name" "$drop_x" "$icon_y"
+  --filesystem APFS
+  --no-internet-enable
+  --overwrite
+)
+
+icon="$stage/URE.app/Contents/Resources/URE_icon.icns"
+if [[ -f "$icon" ]] && setfile="$(xcrun --find SetFile 2>/dev/null)"; then
+  export PATH="$(dirname "$setfile"):${PATH}"
+  args+=(--volicon "$icon")
 fi
 
-osascript <<APPLESCRIPT
-tell application "Finder"
-  tell disk "$disk_name"
-    open
-    delay 1
-    set theWindow to container window
-    set current view of theWindow to icon view
-    set toolbar visible of theWindow to false
-    set statusbar visible of theWindow to false
-    set the bounds of theWindow to {240, 120, 880, 528}
-    set theOptions to the icon view options of theWindow
-    set arrangement of theOptions to not arranged
-    set icon size of theOptions to 128
-    set text size of theOptions to 13
-    set background picture of theOptions to file ".background:background.png"
-    delay 1
-    set position of item "URE.app" of theWindow to {132, 86}
-    set position of item "Applications" of theWindow to {380, 86}
-    set extension hidden of item "URE.app" of theWindow to true
-    update without registering applications
-    delay 2
-    close theWindow
-  end tell
-end tell
-APPLESCRIPT
-
-sync
-hdiutil detach "$mounted_volume" >/dev/null
-mounted_volume=""
-rm -f "$dmg"
-hdiutil convert "$rw" -format UDZO -imagekey zlib-level=9 -o "$dmg" >/dev/null
+mkdir -p "$(dirname "$dmg")"
+"$tool" "${args[@]}" "$dmg" "$stage"
 hdiutil verify "$dmg" >/dev/null
