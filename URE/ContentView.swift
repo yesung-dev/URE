@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     var model: AppModel
+    @AppStorage("appearance") private var appearance = AppearanceChoice.system
 
     var body: some View {
         Group {
@@ -45,6 +46,20 @@ struct ContentView: View {
         .frame(minWidth: 760, minHeight: 560)
         .navigationTitle("유리")
         .navigationSubtitle("URE · Unicode Reunion Engine")
+        .preferredColorScheme(appearance.colorScheme)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Picker("모양", selection: $appearance) {
+                    ForEach(AppearanceChoice.allCases) { choice in
+                        Text(choice.title).tag(choice)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .fixedSize()
+                .accessibilityLabel("모양")
+            }
+        }
         .dropDestination(for: URL.self) { urls, _ in
             guard model.acceptsFiles else { return false }
             model.ingest(urls)
