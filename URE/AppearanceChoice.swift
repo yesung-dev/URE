@@ -22,4 +22,14 @@ enum AppearanceChoice: String, CaseIterable, Identifiable {
         case .system: nil
         }
     }
+
+    /// The system setting, independent of this window's override.
+    static var systemScheme: ColorScheme {
+        UserDefaults.standard.string(forKey: "AppleInterfaceStyle") == "Dark" ? .dark : .light
+    }
+
+    /// A concrete scheme. System is resolved immediately so materials are not left on the previous appearance.
+    var resolvedColorScheme: ColorScheme {
+        colorScheme ?? Self.systemScheme
+    }
 }

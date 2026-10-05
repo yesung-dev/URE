@@ -1,8 +1,15 @@
+import Combine
 import SwiftUI
 
 struct ContentView: View {
     var model: AppModel
     @AppStorage("appearance") private var appearance = AppearanceChoice.system
+    @State private var systemScheme = AppearanceChoice.systemScheme
+    @State private var glassEpoch = 0
+
+    private var resolvedScheme: ColorScheme {
+        appearance.colorScheme ?? systemScheme
+    }
 
     var body: some View {
         Group {
@@ -44,9 +51,22 @@ struct ContentView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .frame(minWidth: 760, minHeight: 560)
+        .id(glassEpoch)
         .navigationTitle("유리")
         .navigationSubtitle("URE · Unicode Reunion Engine")
-        .preferredColorScheme(appearance.colorScheme)
+        .preferredColorScheme(resolvedScheme)
+        .background {
+            WindowAppearanceSetter(scheme: resolvedScheme) {
+                glassEpoch += 1
+            }
+        }
+        .onReceive(
+            DistributedNotificationCenter.default()
+                .publisher(for: Notification.Name("AppleInterfaceThemeChangedNotification"))
+                .receive(on: DispatchQueue.main)
+        ) { _ in
+            systemScheme = AppearanceChoice.systemScheme
+        }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Picker("모양", selection: $appearance) {
