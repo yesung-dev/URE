@@ -3,6 +3,7 @@ import SwiftUI
 @main
 struct UREApp: App {
     @State private var model = AppModel()
+    private let appUpdater = AppUpdater()
 
     var body: some Scene {
         WindowGroup {
@@ -10,6 +11,7 @@ struct UREApp: App {
         }
         .defaultSize(width: 860, height: 700)
         .commands {
+            AppUpdaterCommands(appUpdater: appUpdater)
             CommandGroup(replacing: .newItem) {}
             CommandGroup(after: .pasteboard) {
                 Button("파일 선택") {

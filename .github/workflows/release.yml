@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: xcode-27
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build, package, and write appcast
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+          URE_APPCAST_URL: https://github.com/${{ github.repository }}/releases/latest/download/appcast.xml
+          URE_DOWNLOAD_URL_PREFIX: https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/
+        run: ./Scripts/package_release.sh "${GITHUB_REF_NAME}"
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME}"
+          version="${tag#v}"
+          notes=$(printf 'URE %s\n\n- URE-%s.zip is the Sparkle update archive.\n- URE-%s.dmg is for manual installation.\n' "$version" "$tag" "$tag")
+          prerelease=""
+          if [[ "$tag" == *-alpha* || "$tag" == *-beta* || "$tag" == *-rc* ]]; then
+            prerelease="--prerelease"
+          fi
+          gh release create "$tag" \
+            --title "URE ${tag}" \
+            --notes "$notes" \
+            $prerelease \
+            "dist/URE-${tag}.zip" \
+            "dist/URE-${tag}.dmg" \
+            dist/appcast.xml
