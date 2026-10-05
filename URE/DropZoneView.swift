@@ -9,8 +9,8 @@ struct DropZoneView: View {
                 .frame(maxWidth: 520, maxHeight: 340)
 
             VStack(spacing: 4) {
-                Text("Decomposed Unicode filenames를 NFC로 정규화합니다.")
-                Text("파일 내용은 바꾸지 않고, 이름만 NFC로 정규화합니다.")
+                Text("유리는 분해된 파일 이름을 NFC로 바꿉니다.")
+                Text("파일 내용은 바꾸지 않고, 이름만 정규화합니다.")
             }
             .font(.callout)
             .foregroundStyle(.secondary)

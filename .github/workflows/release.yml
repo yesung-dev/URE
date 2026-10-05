@@ -29,15 +29,17 @@ jobs:
           set -euo pipefail
           tag="${GITHUB_REF_NAME}"
           version="${tag#v}"
-          notes=$(printf 'URE %s\n\n- URE-%s.zip is the Sparkle update archive.\n- URE-%s.dmg is for manual installation.\n' "$version" "$tag" "$tag")
+          notes=$(printf '유리 (URE) %s\n\n- URE-%s.zip is the Sparkle update archive.\n- URE-%s.dmg is for manual installation.\n' "$version" "$tag" "$tag")
           prerelease=""
           if [[ "$tag" == *-alpha* || "$tag" == *-beta* || "$tag" == *-rc* ]]; then
             prerelease="--prerelease"
           fi
+          cp "dist/URE-${tag}.dmg" dist/URE.dmg
           gh release create "$tag" \
-            --title "URE ${tag}" \
+            --title "유리 (URE) ${tag}" \
             --notes "$notes" \
             $prerelease \
             "dist/URE-${tag}.zip" \
             "dist/URE-${tag}.dmg" \
+            dist/URE.dmg \
             dist/appcast.xml

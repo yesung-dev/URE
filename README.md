@@ -1,6 +1,6 @@
-# URE
+# 유리 (URE)
 
-Unicode Reunion Engine. 분해된 Unicode 파일명을 NFC로 정규화하는 macOS 유틸리티입니다.
+Unicode Reunion Engine. 한국어 이름은 유리입니다. 분해된 Unicode 파일명을 NFC로 정규화하는 macOS 유틸리티입니다.
 
 A native macOS utility for reuniting decomposed Unicode filenames.
 
@@ -57,7 +57,7 @@ export URE_DOWNLOAD_URL_PREFIX="https://github.com/OWNER/URE/releases/download/v
 
 결과물은 `dist/URE-v0.1.0.zip`, `dist/URE-v0.1.0.dmg`, `dist/appcast.xml`입니다. `OWNER/URE`는 실제 GitHub 저장소로 바꿉니다. `origin` remote가 있으면 두 URL 환경 변수는 생략할 수 있습니다.
 
-DMG를 열면 URE와 응용 프로그램 폴더가 나란히 있습니다. 앱을 그 폴더로 끌어다 놓으면 설치됩니다.
+DMG를 열면 유리와 응용 프로그램 폴더가 나란히 있습니다. 앱을 그 폴더로 끌어다 놓으면 설치됩니다.
 
 단위 테스트:
 

@@ -77,7 +77,7 @@ if [[ -z "$drop_name" ]]; then
 fi
 
 args=(
-  --volname "URE"
+  --volname "유리"
   --background "$background"
   --window-pos 200 120
   --window-size "$window_width" "$window_height"

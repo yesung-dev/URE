@@ -43,8 +43,8 @@ struct ContentView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .frame(minWidth: 760, minHeight: 560)
-        .navigationTitle("URE")
-        .navigationSubtitle("Unicode Reunion Engine")
+        .navigationTitle("유리")
+        .navigationSubtitle("URE · Unicode Reunion Engine")
         .dropDestination(for: URL.self) { urls, _ in
             guard model.acceptsFiles else { return false }
             model.ingest(urls)

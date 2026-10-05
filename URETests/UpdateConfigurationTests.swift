@@ -2,6 +2,7 @@ import XCTest
 
 final class UpdateConfigurationTests: XCTestCase {
     func testSparklePublicKeyIsConfigured() {
+        XCTAssertEqual(Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String, "유리")
         XCTAssertEqual(Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String, "URE")
         let key = Bundle.main.object(forInfoDictionaryKey: "SUPublicEDKey") as? String
         XCTAssertNotNil(key)

@@ -339,7 +339,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = URE;
+				INFOPLIST_KEY_CFBundleDisplayName = "유리";
 				INFOPLIST_KEY_CFBundleName = URE;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_FILE = Config/Sparkle-Info.plist;
@@ -372,7 +372,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = URE;
+				INFOPLIST_KEY_CFBundleDisplayName = "유리";
 				INFOPLIST_KEY_CFBundleName = URE;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_FILE = Config/Sparkle-Info.plist;
